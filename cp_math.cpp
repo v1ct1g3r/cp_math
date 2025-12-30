@@ -23,8 +23,21 @@ long long modpow(const int &base, const int &exp, const int &modulo)
 {
 	if (exp == 0) return 1;
 	long long u = modpow(base, exp / 2, modulo);
-	u = (u * u) % modulo;
+	u = u * u % modulo;
 	return (exp & 1 ? base : 1) * u % modulo;
+}
+
+std::vector<std::pair<int,int>> prime_fact(int n)
+{
+	std::vector<std::pair<int,int>> f;
+	for (int d = 2; d * d <= n; d++) if (n % d == 0)
+	{
+		int m = 0;
+		while (n % d == 0) n /= d, m++;
+		f.push_back({d, m});
+	}
+	if (n > 1) f.push_back({n, 1});
+	return f;
 }
 
 
@@ -34,4 +47,5 @@ PYBIND11_MODULE(cp_math, m)
 	
 	m.def("sieve", &sieve, "Sieve of Eratosthenes");
 	m.def("modpow", &modpow, "Modular exponentiation");
+	m.def("prime_fact", &prime_fact, "Prime factorization");
 }
