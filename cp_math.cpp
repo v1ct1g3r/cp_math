@@ -19,15 +19,7 @@ std::vector<int> sieve(const int &n)
 	return primes;
 }
 
-long long modpow(const int &base, const int &exp, const int &modulo)
-{
-	if (exp == 0) return 1;
-	long long u = modpow(base, exp / 2, modulo);
-	u = u * u % modulo;
-	return (exp & 1 ? base : 1) * u % modulo;
-}
-
-std::vector<std::pair<int,int>> prime_fact(int n)
+std::vector<std::pair<int, int>> prime_fact(int n)
 {
 	std::vector<std::pair<int,int>> f;
 	for (int d = 2; d * d <= n; d++) if (n % d == 0)
@@ -40,12 +32,48 @@ std::vector<std::pair<int,int>> prime_fact(int n)
 	return f;
 }
 
+bool isprime(const int &n)
+{
+	if (n < 2) return false;
+	if (n == 2) return true;
+	for (long long d = 3; d * d <= n; d += 2) if (n % d == 0) return false;
+	return true;
+}
+
+long long modpow(const int &base, const int &exp, const int &m)
+{
+	if (exp == 0) return 1;
+	long long u = modpow(base, exp / 2, m);
+	u = u * u % m;
+	return (exp & 1 ? base : 1) * u % m;
+}
+
+std::tuple<int, int, int> extendedEuclid(const int &a, const int &b)
+{
+	if (b == 0) return {a, 1, 0};
+	int g, x1, y1;
+	std::tie(g, x1, y1) = extendedEuclid(b, a % b);
+	int x = y1, y = x1 - (a / b) * y1;
+	return {g, x, y};
+}
+
+int modinv(const int &a, const int &m)
+{
+	int g, x, y;
+	std::tie(g, x, y) = extendedEuclid(a, m);
+	if (g != 1) throw std::invalid_argument(std::to_string(a) + " has no modular inverse modulo " + std::to_string(m));
+	int inverse = (x % m + m) % m;
+	return inverse;
+}
+
 
 PYBIND11_MODULE(cp_math, m)
 {
 	m.doc() = "C++ competitive programming math algorithms module for Python";
 	
 	m.def("sieve", &sieve, "Sieve of Eratosthenes");
-	m.def("modpow", &modpow, "Modular exponentiation");
 	m.def("prime_fact", &prime_fact, "Prime factorization");
+	m.def("modpow", &modpow, "Modular exponentiation");
+	m.def("extendedEuclid", &extendedEuclid, "Extended Euclidean algorithm");
+	m.def("modinv", &modinv, "Modular inverse");
 }
